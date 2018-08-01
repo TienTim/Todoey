@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class CategoryTableViewController: UITableViewController {
+class CategoryTableViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     
@@ -27,9 +28,9 @@ class CategoryTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Category Cell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"
-
+        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].color ?? "28AAE1")
         return cell
     }
     
@@ -45,6 +46,21 @@ class CategoryTableViewController: UITableViewController {
             destinationVC.selectedCategory = categories?[indexPath.row]
         }
     }
+    
+    //MARK: - Delete Data From Swipe
+    
+    override func updateModel(at indexPath: IndexPath) {
+        super.updateModel(at: indexPath)
+        if let categoryDeletion = categories?[indexPath.row] {
+            do {
+                try realm.write {
+                    realm.delete(categoryDeletion)
+                }
+            } catch {
+                print("Error deleting category,\(error)")
+            }
+        }
+    }
 
     //MARK: - Add new category
     
@@ -54,6 +70,7 @@ class CategoryTableViewController: UITableViewController {
         let action = UIAlertAction(title: "Add item", style: .default) { (action) in
             let newCategory = Category()
             newCategory.name = textField.text!
+            newCategory.color = UIColor.randomFlat().hexValue()
             self.save(category: newCategory)
         }
         alert.addTextField { (text) in
