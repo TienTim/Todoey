@@ -101,7 +101,7 @@ class TodoListViewController: SwipeTableViewController {
                     realm.delete(itemDeletion)
                 }
             } catch {
-                print("Error deleting category,\(error)")
+                print("Error deleting item, \(error)")
             }
         }
     }
